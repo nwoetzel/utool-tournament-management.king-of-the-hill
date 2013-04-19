@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1" >
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+            
+            <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+        	<TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome the King of the Hill. This tournament type provides a simple game. In these tournaments, the king faces off against a series of challengers one at a time."
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+        	
+        	<TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="To indicate that the king has won, simply press the king's name and the challenger will be returned to the bottom of the list. Press the challenger to indicate they have won."
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+        	
+        	<TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="If you want to manually move players, press and hold the player you want to move. Then press the position you wish to move them to."
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+        </LinearLayout>
+
+           
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/home_help_close_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="Close" />
+
+</LinearLayout>

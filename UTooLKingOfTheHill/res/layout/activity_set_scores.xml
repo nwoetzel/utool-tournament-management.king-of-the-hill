@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+
+	<EditText android:id="@+id/playerWinsScoreField"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/timerLabel"
+		android:layout_centerHorizontal="true" android:background="@color/white"
+		android:ems="10" android:inputType="number" android:paddingBottom="5px"
+		android:paddingTop="5px" android:textSize="35px" android:width="150px"
+		android:textColor="@color/black">
+
+		<requestFocus />
+	</EditText>
+
+	<TextView android:id="@+id/playerWinsLabel"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_alignBaseline="@+id/playerWinsScoreField"
+		android:layout_alignBottom="@+id/playerWinsScoreField"
+		android:layout_marginRight="5px" android:layout_toLeftOf="@+id/playerWinsScoreField"
+		android:text="Wins" android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textColor="@color/white" android:textSize="35px"
+		android:typeface="normal" />
+
+	<Button android:id="@+id/playerWinsPlusBtn" style="?android:attr/buttonStyleSmall"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/playerWinsScoreField"
+		android:layout_toRightOf="@+id/playerWinsLabel" android:background="@android:drawable/btn_default"
+		android:maxHeight="50dip" android:maxWidth="50dip" android:minHeight="50dip"
+		android:minWidth="50dip" android:text="+" android:textSize="45px"
+		android:textColor="@color/black" />
+
+	<Button android:id="@+id/playerWinsMinusBtn" style="?android:attr/buttonStyleSmall"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/playerWinsScoreField"
+		android:layout_toRightOf="@+id/playerWinsPlusBtn" android:background="@android:drawable/btn_default"
+		android:maxHeight="50dip" android:maxWidth="50dip" android:minHeight="50dip"
+		android:minWidth="50dip" android:text="-" android:textSize="45px"
+		android:textColor="@color/black" />
+
+	<EditText android:id="@+id/playerLossesScoreField"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/playerWinsPlusBtn"
+		android:layout_centerHorizontal="true" android:layout_marginTop="40px"
+		android:background="@color/white" android:ems="10" android:inputType="number"
+		android:paddingBottom="5px" android:paddingTop="5px" android:textSize="35px"
+		android:typeface="normal" android:width="150px"
+		android:textColor="@color/black" />
+
+	<Button android:id="@+id/playerLossesPlusBtn" style="?android:attr/buttonStyleSmall"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_alignLeft="@+id/playerLossesScoreField"
+		android:layout_below="@+id/playerLossesScoreField" android:background="@android:drawable/btn_default"
+		android:height="50dip" android:text="+" android:textSize="45px"
+		android:width="50dip"
+		android:textColor="@color/black" />
+
+	<Button android:id="@+id/playerLossesMinusBtn" style="?android:attr/buttonStyleSmall"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/playerLossesScoreField"
+		android:layout_toRightOf="@+id/playerLossesPlusBtn" android:background="@android:drawable/btn_default"
+		android:maxHeight="50dip" android:maxWidth="50dip" android:minWidth="50dip"
+		android:text="-" android:textSize="45px"
+		android:textColor="@color/black" />
+
+	<Button android:id="@+id/saveBtn" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_below="@+id/playerLossesPlusBtn"
+		android:layout_centerHorizontal="true" android:layout_marginTop="10px"
+		android:background="@android:drawable/btn_default" android:text="Set Score"
+		android:textSize="35px" android:typeface="normal"
+		android:textColor="@color/black" />
+
+	<Button android:id="@+id/cancelBtn" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_below="@+id/saveBtn"
+		android:layout_centerHorizontal="true" android:background="@android:drawable/btn_default"
+		android:text="Cancel" android:textSize="35px" android:typeface="normal"
+		android:textColor="@color/black" />
+
+	<TextView android:id="@+id/playerLossesLabel"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_above="@+id/playerLossesPlusBtn"
+		android:layout_marginRight="5px" android:layout_toLeftOf="@+id/playerLossesScoreField"
+		android:text="Losses" android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textColor="@color/white" android:textSize="35px"
+		android:typeface="normal" />
+
+</RelativeLayout>

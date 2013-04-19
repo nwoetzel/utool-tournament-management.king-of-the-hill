@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="utool.plugin.kingofthehill"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="15" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/koth_bird"
+        android:label="@string/app_name"
+        android:theme="@style/KothTheme" >
+        <activity
+            android:name="utool.plugin.kingofthehill.KingOfTheHillMainActivity"
+            android:label="@string/title_activity_king_of_the_hill_main" >
+            <intent-filter>
+                <action android:name="utool.plugin.intent.PICK_PLUGIN" />
+
+                <category android:name="utool.plugin.PLUGIN" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="utool.plugin.kingofthehill.OptionsActivity"
+            android:label="@string/title_activity_options" >
+        </activity>
+        <activity
+            android:name="utool.plugin.kingofthehill.EmailActivity"
+            android:label="@string/title_activity_email" >
+        </activity>
+        
+        <activity
+            android:name="utool.plugin.kingofthehill.StandingsActivity"
+            android:label="@string/title_activity_options" >
+        </activity>
+    </application>
+
+</manifest>

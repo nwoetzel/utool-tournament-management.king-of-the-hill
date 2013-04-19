@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+   <RelativeLayout 
+       android:id="@+id/emailMatchesRelativeLayout"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Email Matches:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#00FFFF" />
+ 	
+ 	<Button
+        android:id="@+id/options_configure_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView4"
+        android:layout_toRightOf="@+id/options_send"
+        android:text="Configure Email..." />
+ 	
+    <Button
+        android:id="@+id/options_send_email"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView4"
+        android:layout_toRightOf="@+id/options_configure_email"
+        android:text="Send" />
+
+	</RelativeLayout>
+	
+   <RelativeLayout 
+       android:id="@+id/timerRelativeLayout"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/emailMatchesRelativeLayout">
+       
+       <TextView
+           android:id="@+id/roundTimerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Round Timer:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#00FFFF" />
+       
+       <EditText android:id="@+id/roundTimerEditText"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/roundTimerTextView"
+		android:background="@color/white" android:ems="10" android:inputType="number"
+		android:paddingBottom="5px" android:paddingTop="5px" android:textSize="35px"
+		android:typeface="normal" android:width="150px"
+		android:textColor="@color/black"
+		android:digits="0123456789" />
+       <TextView 
+           android:id="@+id/roundTimerSecondsLabel"
+           android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/roundTimerEditText"
+        android:layout_toRightOf="@+id/roundTimerEditText"
+        android:text="seconds"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FFFFFF"/>
+       
+       <TextView
+           android:id="@+id/gameTimerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/roundTimerEditText"
+        android:layout_marginTop="10dip"
+        android:text="Game Timer:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#00FFFF" />
+       
+       <EditText android:id="@+id/gameTimerEditText"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@+id/gameTimerTextView"
+		android:background="@color/white" android:ems="10" android:inputType="number"
+		android:paddingBottom="5px" android:paddingTop="5px" android:textSize="35px"
+		android:typeface="normal" android:width="150px"
+		android:textColor="@color/black"
+		android:digits="0123456789" />
+       <TextView 
+           android:id="@+id/gameTimerSecondsLabel"
+           android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/gameTimerEditText"
+        android:layout_toRightOf="@+id/gameTimerEditText"
+        android:text="seconds"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FFFFFF"/>
+       
+       
+   </RelativeLayout>
+
+   <Button
+       android:id="@+id/applyButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_centerHorizontal="true"
+       android:layout_marginBottom="16dp"
+       android:text="Apply" />
+   
+</RelativeLayout>

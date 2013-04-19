@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/kothMainActivityLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".KingOfTheHillMainActivity" >
+    
+    <RelativeLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView 
+        android:id="@+id/gameTimerTextViewLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       	android:textAppearance="?android:attr/textAppearanceMedium"
+       	android:text="Game Time Remaining: " />
+    <TextView 
+        android:id="@+id/gameTimerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/roundTimerTextViewLabel"
+       	android:textAppearance="?android:attr/textAppearanceMedium"
+       	android:text="0" />
+    <TextView 
+        android:id="@+id/roundTimerTextViewLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gameTimerTextViewLabel"
+       	android:textAppearance="?android:attr/textAppearanceMedium"
+       	android:text="Round Time Remaining: " />
+    <TextView 
+        android:id="@+id/roundTimerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gameTimerTextView"
+        android:layout_toRightOf="@+id/roundTimerTextViewLabel"
+       	android:textAppearance="?android:attr/textAppearanceMedium"
+       	android:text="0" />
+    </RelativeLayout>
+	<include
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		layout="@layout/list_player_item"
+		android:background="@drawable/kingshape" />
+
+	<ListView
+	    android:id="@+id/playersQueueListView"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+	</ListView>
+
+</LinearLayout>
