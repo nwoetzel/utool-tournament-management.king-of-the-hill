@@ -2,18 +2,47 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+    
+    <LinearLayout
+        android:id="@+id/utoolTitleBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:paddingLeft="5dip" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Options"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#ff0000"
+            android:textSize="32dip" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Universal Tournament Organization Tool"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
 
    <RelativeLayout 
        android:id="@+id/emailMatchesRelativeLayout"
        android:layout_width="match_parent"
-       android:layout_height="wrap_content">
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/utoolTitleBar">
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Email Matches:"
+        android:text="Send Matches:"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#00FFFF" />
  	
@@ -22,8 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView4"
-        android:layout_toRightOf="@+id/options_send"
-        android:text="Configure Email..." />
+        android:text="Configure Messaging..." />
  	
     <Button
         android:id="@+id/options_send_email"

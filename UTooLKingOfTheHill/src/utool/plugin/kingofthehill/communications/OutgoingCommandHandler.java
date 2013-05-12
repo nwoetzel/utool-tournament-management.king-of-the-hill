@@ -3,6 +3,7 @@ package utool.plugin.kingofthehill.communications;
 import java.util.List;
 
 import android.os.RemoteException;
+import android.util.Log;
 
 import utool.plugin.IUTooLCore;
 import utool.plugin.Player;
@@ -51,6 +52,7 @@ public class OutgoingCommandHandler {
 		List<Player> players = tournament.getPlayers();
 		
 		GameStateMessage message = new GameStateMessage(king, players, tournament.getPlayerExtras(), tournament.getRemainingGameTime(), tournament.getRemainingRoundTime());
+		message.setKingWins(tournament.getKingWinsStreakCount());
 		String xml = message.getXml();
 
 		try {
@@ -69,8 +71,12 @@ public class OutgoingCommandHandler {
 		String xml = message.getXml();
 		
 		try {
-			if (service != null)
+			if (service != null){
+				Log.d("KOTH", "Requesting game state");
 				service.send(xml);
+			} else {
+				Log.d("KOTH", "Error requesting game state, service is null");
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

@@ -1,5 +1,6 @@
 package utool.plugin.kingofthehill;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -75,6 +77,11 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	private int playerToMove = PLAYER_TO_MOVE_NULL;
 	
 	/**
+	 * Infinity ring constant
+	 */
+	private static final String infinityRing = "\u221E";
+	
+	/**
 	 * Runnable associated with updateHandler
 	 */
 	private final Runnable updateRunnable = new Runnable() {
@@ -99,13 +106,13 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 			
 			int gameTimer = tournament.getRemainingGameTime();
 			int roundTimer = tournament.getRemainingRoundTime();
-			if (gameTimer == -1){
-				gameTimerView.setText("0");
+			if (gameTimer == TournamentLogic.TIMER_NOT_SET){
+				gameTimerView.setText(infinityRing);
 			} else {
 				gameTimerView.setText(secondsToHHmmss(gameTimer));
 			}
-			if (roundTimer == -1){
-				roundTimerView.setText("0");
+			if (roundTimer == TournamentLogic.TIMER_NOT_SET){
+				roundTimerView.setText(infinityRing);
 			} else {
 				roundTimerView.setText(secondsToHHmmss(roundTimer));
 			}
@@ -120,11 +127,18 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	 */
 	private String secondsToHHmmss(int seconds){
 		String time = "";
-		int hours = (int) TimeUnit.SECONDS.toHours(seconds);
-		seconds -= TimeUnit.HOURS.toSeconds(hours);
-        int minutes = (int) TimeUnit.SECONDS.toMinutes(seconds);
-        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
-        
+//		int hours = (int) TimeUnit.SECONDS.toHours(seconds);
+//		seconds -= TimeUnit.HOURS.toSeconds(hours);
+//        int minutes = (int) TimeUnit.SECONDS.toMinutes(seconds);
+//        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
+        //Note: The above code requires API level 9, we support as low as API level 8
+		
+		int hours = seconds/3600;
+		seconds -= hours*3600;
+		int minutes = seconds/60;
+		seconds -= minutes*60;
+		
+		
 		if (hours > 0){
 			time += hours;
 			if (minutes < 10){
@@ -163,9 +177,9 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	private static final int UTOOL_TOURNAMENT_CONFIG_REQUEST_CODE = 1;
 	
 	/**
-	 * Data reception thread
+	 * Data reception threads
 	 */
-	private Thread receiveThread;
+	private static HashMap<Long, Thread> receiveThreads = new HashMap<Long, Thread>();
 	
 	/**
 	 * Runnable for data reception thread
@@ -175,10 +189,13 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 		public void run() 
 		{
 			try {
+				Log.d("KOTH", "Receive thread running");
 				while (true)
 				{
 					String msg = pluginHelper.mICore.receive();
+					Log.d("KOTH", "Message received");
 					if (msg.equals(PluginCommonActivityHelper.UTOOL_SOCKET_CLOSED_MESSAGE)){
+						Log.d("KOTH", "Receive thread closing");
 						return;
 					}
 					runOnUiThread(new MessageHandler(msg));
@@ -221,7 +238,13 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		//remove title bar if under honeycomb
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		}
 		setContentView(R.layout.activity_king_of_the_hill_main);
+				
 		
 		//android.os.Debug.waitForDebugger();
 		
@@ -260,21 +283,24 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 			startActivityForResult(i, UTOOL_TOURNAMENT_CONFIG_REQUEST_CODE);
 			return true;
 		case R.id.menu_options:
-			Intent optionsIntent = pluginHelper.getNewIntent(getApplicationContext(), OptionsActivity.class);
+			Intent optionsIntent = pluginHelper.getNewIntent(this, OptionsActivity.class);
 			startActivity(optionsIntent);
 			return true;
 		case R.id.menu_help:
 			showHelp();
 			return true;
 		case R.id.menu_standings:
-			Intent standingsIntent = pluginHelper.getNewIntent(getApplicationContext(), StandingsActivity.class);
+			Intent standingsIntent = pluginHelper.getNewIntent(this, StandingsActivity.class);
 			startActivity(standingsIntent);
 			return true;
+		case R.id.menu_restart:
+			promptRestartTournament();
+			return true;
 		case R.id.menu_disconnect:
-			endTournament();
+			promptEndTournament();
 			return true;
 		case R.id.menu_terminate:
-			endTournament();
+			promptEndTournament();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -288,6 +314,57 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	}
 	
 	/**
+	 * Display yes/no prompt for ending the tournament
+	 */
+	public void promptEndTournament(){
+		//Construct the Yes/No prompt dialog
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				endTournament();
+			}
+		});
+		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		
+		if (pluginHelper.getPermissionLevel() == Player.HOST){
+			builder.setMessage("Are you sure you want to terminate this tournament?");
+		} else {
+			builder.setMessage("Are you sure you want to disconnect from this tournament?");
+		}
+		//Show the Yes/No prompt dialog
+		builder.show();
+	}
+	
+	/**
+	 * Display yes/no prompt for restarting the tournament
+	 */
+	public void promptRestartTournament(){
+		//Construct the Yes/No prompt dialog
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				restartTournament();
+			}
+		});
+		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		builder.setMessage("Are you sure you want to restart this tournament?");
+		//Show the Yes/No prompt dialog
+		builder.show();
+	}
+	
+	/**
 	 * End this tournament. Clients will just disconnect from the server.
 	 */
 	public void endTournament(){
@@ -298,6 +375,20 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 		}
 		TournamentLogic.removeInstance(pluginHelper.getTournamentId());
 		finish();
+	}
+	
+	/**
+	 * Restart this tournament.
+	 */
+	private void restartTournament(){
+		LinkedList<Player> playerList;
+		try {
+			playerList = new LinkedList<Player>(pluginHelper.mICore.getPlayerList());
+			Player king = playerList.poll();
+			((KingOfTheHillTournament)tournament).restartTournament(king, playerList);
+		} catch (RemoteException e) {
+			//do nothing
+		}
 	}
 	
 	@Override
@@ -428,8 +519,16 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 			public void onClick(View v) {
 				EditText winsField = (EditText)dialog.findViewById(R.id.playerWinsScoreField);
 				EditText lossesField = (EditText)dialog.findViewById(R.id.playerLossesScoreField);
-				int wins = Integer.parseInt(winsField.getText().toString()); 
-				int losses = Integer.parseInt(lossesField.getText().toString());
+				int wins = 0;
+				int losses = 0;
+				try{
+					wins = Integer.parseInt(winsField.getText().toString());
+				} catch (Exception e){/*Dodge the crash*/}
+				
+				try{
+					losses = Integer.parseInt(lossesField.getText().toString());
+				} catch (Exception e){/*Dodge the crash*/}
+				
 				KingOfTheHillPlayerExtra extra;
 				if (playerToMove == TournamentLogic.KING_POSITION){
 					extra = tournament.getPlayerExtra(tournament.getKing());
@@ -469,20 +568,28 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 				List<Player> playerList = pluginHelper.mICore.getPlayerList();
 				tournament = TournamentLogic.getNewInstance(this, pluginHelper.getTournamentId(), playerList, Player.HOST);
 				tournament.setMatchupActivity(this, pluginHelper.mICore);
-
+				tournament.setLocalPlayer(pluginHelper.getPid());
+				
 				updateActivity();
 			} else {
 				//Participant code
 				List<Player> playerList = pluginHelper.mICore.getPlayerList();
 				tournament = TournamentLogic.getNewInstance(this, pluginHelper.getTournamentId(), playerList, Player.PARTICIPANT);
 				tournament.setMatchupActivity(this, pluginHelper.mICore);
+				tournament.setLocalPlayer(pluginHelper.getPid());
 				ListView playerListView = (ListView)findViewById(R.id.playersQueueListView);
 				playerListView.setAdapter(this.tournament);
 				tournament.getOutgoingCommandHandler().requestGameState();
 			}
-			if (isNewInstance() || (receiveThread != null && !receiveThread.isAlive())){
+			
+			Thread receiveThread = receiveThreads.get(pluginHelper.getTournamentId());
+			if (isNewInstance() || receiveThread == null || (receiveThread != null && !receiveThread.isAlive())){
+				Log.d("KOTH", "Creating receive thread");
 				receiveThread = new Thread(receiveRunnable);
 				receiveThread.start();
+				receiveThreads.put(pluginHelper.getTournamentId(), receiveThread);
+			} else {
+				Log.d("KOTH", "Not creating receive thread: " + isNewInstance() + " " + receiveThread.toString());
 			}
 			timerRunnable.run();
 		} catch (RemoteException e) {
@@ -502,19 +609,23 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	 * @param player The new king
 	 */
 	public void setKing(Player player){
-		
 		ImageView portrait = (ImageView)findViewById(R.id.playerPortrait);
 		ImageView crown = (ImageView)findViewById(R.id.playerKingImage);
 		portrait.setImageBitmap(player.getPortrait());
 		crown.setImageResource(R.drawable.crown);
 		TextView name = (TextView)findViewById(R.id.playerName);
 		name.setText(player.getName());
+		if (player.getUUID().equals(tournament.getLocalPlayer())){
+			name.setTextColor(Color.CYAN);
+		} else {
+			name.setTextColor(Color.WHITE);
+		}
 		
 		//set player wins/losses
 		TextView standings = (TextView)findViewById(R.id.playerStanding);
 		KingOfTheHillPlayerExtra extra = tournament.getPlayerExtra(player);
 		if (extra.getWins() != -1 && extra.getLosses() != -1){
-			String standingsText = extra.getWins() + "W " + extra.getLosses() + "L";
+			String standingsText = extra.getWins() + "W " + extra.getLosses() + "L " + tournament.getKingWinsStreakCount() + "WRnd";
 			standings.setText(standingsText);
 		} else {
 			standings.setText("");
@@ -552,8 +663,12 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 			}
 		});
 		
-		
-		if (kingTemp == null || !kingTemp.equals(player)){
+		if (!tournament.getUseSlideAnimations()){
+			//Players have been moved, so don't do slide animations
+			kingItem.clearAnimation();
+			kingTemp = player;
+		}
+		if ((kingTemp == null || !kingTemp.equals(player)) && tournament.getUseSlideAnimations()){
 			kingTemp = player;
 			Animation animation = AnimationUtils.loadAnimation(KingOfTheHillMainActivity.this, R.anim.anim_slide_up);
 			kingItem.setAnimation(animation);
@@ -590,6 +705,9 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 		Animation animation = AnimationUtils.loadAnimation(KingOfTheHillMainActivity.this, R.anim.anim_slide_out_left);
 		ListView playerListView = (ListView)findViewById(R.id.playersQueueListView);
 		View view = playerListView.getChildAt(0);
+		if (view == null){
+			return;
+		}
 		view.startAnimation(animation);
 		
 		//tell the logic class to update after the animation has been performed.
@@ -613,6 +731,14 @@ public class KingOfTheHillMainActivity extends AbstractPluginMainReference {
 	 */
 	private void updateActivity() {
 		updatePlayerList();
+		
+		TextView tournamentNameTextViewLabel = (TextView)findViewById(R.id.tournamentNameTextViewLabel);
+		try{
+			tournamentNameTextViewLabel.setText(pluginHelper.mICore.getTournamentName());
+		} catch (RemoteException e){
+			//do nothing, shouldn't happen
+		}
+		
 		
 		ListView playerListView = (ListView)findViewById(R.id.playersQueueListView);
 		playerListView.setAdapter(this.tournament);

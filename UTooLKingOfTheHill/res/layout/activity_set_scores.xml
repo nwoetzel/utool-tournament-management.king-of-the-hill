@@ -4,7 +4,6 @@
 
 	<EditText android:id="@+id/playerWinsScoreField"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_below="@+id/timerLabel"
 		android:layout_centerHorizontal="true" android:background="@color/white"
 		android:ems="10" android:inputType="number" android:paddingBottom="5px"
 		android:paddingTop="5px" android:textSize="35px" android:width="150px"

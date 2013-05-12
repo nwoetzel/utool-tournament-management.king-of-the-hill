@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,7 @@ import utool.plugin.IUTooLCore;
 import utool.plugin.Player;
 import utool.plugin.kingofthehill.KingOfTheHillMainActivity;
 import utool.plugin.kingofthehill.R;
-import utool.plugin.kingofthehill.communications.AutomaticEmailHandler;
+import utool.plugin.kingofthehill.communications.AutomaticMessageHandler;
 import utool.plugin.kingofthehill.communications.IncomingCommandHandler;
 import utool.plugin.kingofthehill.communications.OutgoingCommandHandler;
 
@@ -71,6 +72,16 @@ public abstract class TournamentLogic extends BaseAdapter {
 	 * The current king of the game
 	 */
 	protected Player king;
+	
+	/**
+	 * Winning streak count for the king
+	 */
+	protected int kingWins = 0;
+	
+	/**
+	 * The UUID of the player on the local device
+	 */
+	protected UUID localPlayer;
 
 	/**
 	 * The current activity this game instance is associated with. Used for notifying on network communications.
@@ -90,7 +101,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 	/**
 	 * The user-configured game timer setting in seconds
 	 */
-	protected int gameTimerSetting = 0;
+	protected int gameTimerSetting = TIMER_NOT_SET;
 
 	/**
 	 * The time the round timer was started, from System.nanoTime()
@@ -100,12 +111,12 @@ public abstract class TournamentLogic extends BaseAdapter {
 	/**
 	 * The user-configured round timer setting in seconds
 	 */
-	protected int roundTimerSetting = 0;
+	protected int roundTimerSetting = TIMER_NOT_SET;
 	
 	/**
 	 * The value returned by timer methods when the timer isn't configured
 	 */
-	public int TIMER_NOT_SET = -1;
+	public static final int TIMER_NOT_SET = -1;
 
 	/**
 	 * Sync lock object for player list
@@ -115,7 +126,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 	/**
 	 * Email handler for this tournament
 	 */
-	private AutomaticEmailHandler emailHandler;
+	private AutomaticMessageHandler emailHandler;
 	
 	/**
 	 * Basic abstract constructor
@@ -127,7 +138,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 		this.context = context;
 		incommingCommandHandler = new IncomingCommandHandler(this);
 		outgoingCommandHandler = new OutgoingCommandHandler(this);
-		emailHandler = new AutomaticEmailHandler(tournamentId);
+		emailHandler = new AutomaticMessageHandler(tournamentId);
 	}
 	
 	/**
@@ -237,6 +248,22 @@ public abstract class TournamentLogic extends BaseAdapter {
 	public Player getKing(){
 		return king;
 	}
+	
+	/**
+	 * Get the current king's wins this round
+	 * @return Number of wins
+	 */
+	public int getKingWinsStreakCount(){
+		return kingWins;
+	}
+	
+	/**
+	 * Set the current king's wins this round
+	 * @param count Number of wins
+	 */
+	public void setKingWinsStreakCount(int count){
+		kingWins = count;
+	}
 
 	@Override
 	public int getCount() {
@@ -324,7 +351,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 	 * @return The remaining round time in seconds. -1 if unlimited
 	 */
 	public int getRemainingRoundTime(){
-		if (roundTimerSetting == 0){
+		if (roundTimerSetting == TIMER_NOT_SET){
 			return TIMER_NOT_SET;
 		}
 		int elapsed = getElapsedRoundTime();
@@ -380,7 +407,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 	 * @return The remaining game time in seconds. -1 if unlimited
 	 */
 	public int getRemainingGameTime(){
-		if (gameTimerSetting == 0){
+		if (gameTimerSetting == TIMER_NOT_SET){
 			return -1;
 		}
 		int elapsed = getElapsedGameTime();
@@ -456,6 +483,9 @@ public abstract class TournamentLogic extends BaseAdapter {
 	 * @param extras HashMap of player extra data
 	 */
 	public void setPlayerExtras(HashMap<UUID, KingOfTheHillPlayerExtra> extras){
+		if (extras == null || extras.size() == 0){
+			this.playersExtraData.clear();
+		}
 		for (UUID uuid: extras.keySet()){
 			if (king != null && king.getUUID().equals(uuid)){
 				this.playersExtraData.put(king, extras.get(uuid));
@@ -488,6 +518,7 @@ public abstract class TournamentLogic extends BaseAdapter {
 	
 	/**
 	 * Get the current tournament data as text
+	 * NOTE: For some reason can't text this.. not sure why, but causes erroe
 	 * @return Tournament data
 	 */
 	public String getTournamentData(){
@@ -507,6 +538,57 @@ public abstract class TournamentLogic extends BaseAdapter {
 			s.append("Wins: ");
 			s.append(getPlayerExtra(p).getWins());
 			s.append("\n\tLosses: ");
+			s.append(getPlayerExtra(p).getLosses());
+		}
+		return s.toString();
+	}
+	
+	/**
+	 * Get the current tournament data as text
+	 * @return Tournament data
+	 */
+	public String getTournamentDataText(){
+		String s = "";
+		s+=("Current King: ");
+		s+=(king.getName());
+		s+=("\n");
+		s+=("Wins: ");
+		s+=(getPlayerExtra(king).getWins());
+		s+=("\nLosses: ");
+		s+=(getPlayerExtra(king).getLosses());
+		
+		for (Player p : players){
+			s+=("\n\n");
+			s+=(p.getName());
+			s+=("\n");
+			s+=("Wins: ");
+			s+=(getPlayerExtra(p).getWins());
+			s+=("\nLosses: ");
+			s+=(getPlayerExtra(p).getLosses());
+		}
+		return s;
+	}
+	/**
+	 * Get the current tournament data as html formated text
+	 * @return Tournament data
+	 */
+	public String getTournamentDataHTML(){
+		StringBuilder s = new StringBuilder();
+		s.append("<b>Current King: </b>");
+		s.append("<b>"+king.getName()+"</b>");
+		s.append("<br>\t");
+		s.append("Wins: ");
+		s.append(getPlayerExtra(king).getWins());
+		s.append("<br>\tLosses: ");
+		s.append(getPlayerExtra(king).getLosses());
+		
+		for (Player p : players){
+			s.append("<br>\n");
+			s.append("<b>"+p.getName()+"</b>");
+			s.append("<br>\t");
+			s.append("Wins: ");
+			s.append(getPlayerExtra(p).getWins());
+			s.append("<br>\tLosses: ");
 			s.append(getPlayerExtra(p).getLosses());
 		}
 		return s.toString();
@@ -533,6 +615,11 @@ public abstract class TournamentLogic extends BaseAdapter {
 			//set the player name
 			TextView profileName = (TextView)row.findViewById(R.id.playerName);
 			profileName.setText(player.getName());
+			if (localPlayer != null && localPlayer.equals(player.getUUID())){
+				profileName.setTextColor(Color.CYAN);
+			} else {
+				profileName.setTextColor(Color.WHITE);
+			}
 
 			//set the profile picture
 			ImageView portrait = (ImageView)row.findViewById(R.id.playerPortrait);
@@ -561,14 +648,35 @@ public abstract class TournamentLogic extends BaseAdapter {
 			}
 
 			//set the slide up animation on this row
-			if (scrollState == 0){
+			if (scrollState == 0 && useSlideAnimations){
 				Animation animation = AnimationUtils.loadAnimation(context, R.anim.anim_slide_up);
 				row.setAnimation(animation);
+			} else if (!useSlideAnimations){
+				row.clearAnimation();
 			}
 			
 			return row;
 
 		}
+	}
+	
+	/**
+	 * Private variable controlling slide animations
+	 */
+	private boolean useSlideAnimations = true;
+	/**
+	 * Enable/disable the use of slide animations
+	 * @param animationState True to enable, false to disable
+	 */
+	public void setUseSlideAnimations(boolean animationState){
+		this.useSlideAnimations = animationState;
+	}
+	/**
+	 * Get the current state of slide animations
+	 * @return True if slide animations are enabled
+	 */
+	public boolean getUseSlideAnimations(){
+		return useSlideAnimations;
 	}
 	
 	/**
@@ -588,12 +696,28 @@ public abstract class TournamentLogic extends BaseAdapter {
 	public void setScrollState(int scrollState){
 		this.scrollState = scrollState;
 	}
+	
+	/**
+	 * Get the UUID of the local device player
+	 * @return UUID of player
+	 */
+	public UUID getLocalPlayer(){
+		return localPlayer;
+	}
+	
+	/**
+	 * Set the local device player
+	 * @param pid The UUID of the local player
+	 */
+	public void setLocalPlayer(UUID pid){
+		localPlayer = pid;
+	}
 
 	/**
-	 * Get this tournament's email handler
-	 * @return AutomaticEmailHandler
+	 * Get this tournament's AutomaticMessageHandler
+	 * @return AutomaticMessageHandler
 	 */
-	public AutomaticEmailHandler getAutomaticEmailHandler() {
+	public AutomaticMessageHandler getAutomaticMessageHandler() {
 		return emailHandler;
 	}
 }

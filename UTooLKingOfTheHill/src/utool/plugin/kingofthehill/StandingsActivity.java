@@ -8,12 +8,16 @@ import java.util.List;
 import java.util.UUID;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -41,9 +45,23 @@ public class StandingsActivity extends AbstractPluginCommonReference {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//remove title bar if under honeycomb
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		}
 		setContentView(R.layout.activity_standings);
 		
 		tournament = TournamentLogic.getInstance(pluginHelper.getTournamentId());
+		
+		RadioButton name = (RadioButton) findViewById(R.id.sortByNameRadioButton);
+		name.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				updateList();
+				
+			}
+		});
 		
 		RadioButton wins = (RadioButton) findViewById(R.id.sortByWinsRadioButton);
 		wins.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -79,9 +97,11 @@ public class StandingsActivity extends AbstractPluginCommonReference {
 		List<KingOfTheHillPlayerExtra> extras2 = new LinkedList<KingOfTheHillPlayerExtra>(extras.values());
 		
 		RadioButton wins = (RadioButton) findViewById(R.id.sortByWinsRadioButton);
+		RadioButton losses = (RadioButton) findViewById(R.id.sortByLossesRadioButton);
+		RadioButton name = (RadioButton) findViewById(R.id.sortByNameRadioButton);
 		if (wins.isChecked()){
 			Collections.sort(extras2);
-		} else {
+		} else if (losses.isChecked()) {
 			Collections.sort(extras2, new Comparator<KingOfTheHillPlayerExtra>() {
 				@Override
 				public int compare(KingOfTheHillPlayerExtra lhs, KingOfTheHillPlayerExtra rhs) {
@@ -97,15 +117,26 @@ public class StandingsActivity extends AbstractPluginCommonReference {
 		}
 		
 		List<Player> playersTemp = new LinkedList<Player>();
-		//sort players by extras
-		for (KingOfTheHillPlayerExtra e : extras2){
-			UUID uuid = e.getPlayerUUID();
-			for (Player p : players){
-				if (p.getUUID().equals(uuid)){
-					playersTemp.add(p);
-					break;
+		if (!name.isChecked()){
+			//sort players by extras
+			for (KingOfTheHillPlayerExtra e : extras2){
+				UUID uuid = e.getPlayerUUID();
+				for (Player p : players){
+					if (p.getUUID().equals(uuid)){
+						playersTemp.add(p);
+						break;
+					}
 				}
 			}
+		} else {
+			//sort players by name
+			playersTemp.addAll(players);
+			Collections.sort(playersTemp, new Comparator<Player>() {
+				@Override
+				public int compare(Player lhs, Player rhs) {
+					return lhs.getName().compareTo(rhs.getName());
+				}
+			});
 		}
 		
 		StandingsList listAdapter = new StandingsList(playersTemp);
@@ -162,6 +193,11 @@ public class StandingsActivity extends AbstractPluginCommonReference {
 			//set the player name
 			TextView profileName = (TextView)row.findViewById(R.id.playerName);
 			profileName.setText(player.getName());
+			if (player.getUUID().equals(tournament.getLocalPlayer())){
+				profileName.setTextColor(Color.CYAN);
+			} else {
+				profileName.setTextColor(Color.WHITE);
+			}
 
 			//set the profile picture
 			ImageView portrait = (ImageView)row.findViewById(R.id.playerPortrait);

@@ -29,10 +29,31 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	}
 	
 	/**
+	 * Restart the tournament with using the given players
+	 * @param king The king to set
+	 * @param players The list of players
+	 */
+	public void restartTournament(Player king, LinkedList<Player> players){
+		this.king = king;
+		this.players = new LinkedList<Player>(players);
+		if (this.players.contains(king)){
+			this.players.remove(king);
+		}
+		this.playersExtraData.clear();
+		this.kingWins = 0;
+		activity.updateActivityExternal();
+		outgoingCommandHandler.sendGameState();
+	}
+	
+	/**
 	 * Pop the player at the top of the game queue. The player is removed from the queue after this method has been executed.
+	 * @param enableAnimations Set whether to (re)enable slide animations with this call. Use false when calling as part of a move operation.
 	 * @return The player at the top of the queue.
 	 */
-	public Player popTopPlayer(){
+	public Player popTopPlayer(boolean enableAnimations){
+		if (enableAnimations){
+			setUseSlideAnimations(true);
+		}
 		Player p = players.poll();
 		notifyDataSetChanged();
 		return p;
@@ -43,6 +64,7 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * @param player The player to add.
 	 */
 	private void addPlayerToBottom(Player player){
+		setUseSlideAnimations(true);
 		if (!this.players.contains(player)){
 			players.add(player);
 			notifyDataSetChanged();
@@ -56,8 +78,11 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * Otherwise, this value is a 0-based index of the position in the player list.  
 	 */
 	public void movePlayer(Player player, int destinationPosition){
+		//Block slide animations
+		setUseSlideAnimations(false);
+		
 		if (player.equals(king)){
-			Player newKing = popTopPlayer();
+			Player newKing = popTopPlayer(false);
 			setKing(newKing);
 		}
 		if (destinationPosition == KING_POSITION){
@@ -94,6 +119,7 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * @param destinationPosition The index to move the player to.
 	 */
 	public void movePlayer(int currentPosition, int destinationPosition){
+		setUseSlideAnimations(false);
 		Player player;
 		if (currentPosition == KING_POSITION){
 			player = getKing();
@@ -110,7 +136,11 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * @param players The players to add. Players already in the game are ignored.
 	 */
 	public void addNewPlayersToBottom(List<Player> players){
+		setUseSlideAnimations(true);
 		for (Player p: players){
+			if (king == null){
+				setKing(p);
+			}
 			if (!this.players.contains(p) && !king.equals(p)){
 				this.players.add(p);
 			}
@@ -126,6 +156,7 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * @param players The new list of players. Players not in this list are fully removed from the game.
 	 */
 	public void updatePlayerList(List<Player> players){
+		setUseSlideAnimations(true);
 		List<Player> removed = new LinkedList<Player>();
 		//Add new players
 		addNewPlayersToBottom(players);
@@ -144,8 +175,8 @@ public class KingOfTheHillTournament extends TournamentLogic {
 		
 		//Remove removed players from tournament
 		for (Player p: removed){
-			if (king.equals(p)){
-				setKing(popTopPlayer());
+			if (king != null && king.equals(p)){
+				setKing(popTopPlayer(true));
 			} else {
 				this.players.remove(p);
 			}
@@ -161,11 +192,13 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * Move the current king to the end of the game queue, and promote the challenger.
 	 */
 	public void moveKingToEnd(){
+		setUseSlideAnimations(true);
 		Player oldKing = getKing();
 		addPlayerToBottom(oldKing);
 		
-		Player newKing = popTopPlayer();
+		Player newKing = popTopPlayer(true);
 		setKing(newKing);
+		kingWins = 1;
 		
 		getPlayerExtra(oldKing).addLoss();
 		getPlayerExtra(newKing).addWin();
@@ -180,9 +213,11 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	 * @return The player who was moved.
 	 */
 	public Player moveChallengerToEnd(){
-		Player challenger = popTopPlayer();
+		setUseSlideAnimations(true);
+		Player challenger = popTopPlayer(true);
 		addPlayerToBottom(challenger);
 		
+		kingWins += 1;
 		getPlayerExtra(getKing()).addWin();
 		getPlayerExtra(challenger).addLoss();
 		
@@ -203,19 +238,27 @@ public class KingOfTheHillTournament extends TournamentLogic {
 	
 	/**
 	 * Configure the game timer
-	 * @param seconds The number of seconds to make the game
+	 * @param seconds The number of seconds to make the game. Sets to TIMER_NOT_SET if < 1
 	 */
 	public void setGameTimerSetting(int seconds){
-		this.gameTimerSetting = seconds;
+		if (seconds < 1){
+			this.gameTimerSetting = TIMER_NOT_SET;
+		} else {
+			this.gameTimerSetting = seconds;
+		}
 		this.gameTimerStart = System.nanoTime();
 	}
 	
 	/**
 	 * Configure the round timer
-	 * @param seconds The number of seconds to make the round
+	 * @param seconds The number of seconds to make the round. Sets to TIMER_NOT_SET if < 1
 	 */
 	public void setRoundTimerSetting(int seconds){
-		this.roundTimerSetting = seconds;
+		if (seconds < 1){
+			this.roundTimerSetting = TIMER_NOT_SET;
+		} else {
+			this.roundTimerSetting = seconds;
+		}
 		this.roundTimerStart = System.nanoTime();
 	}
 	

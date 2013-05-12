@@ -1,5 +1,6 @@
 package utool.plugin.kingofthehill.communications;
 
+import android.util.Log;
 import utool.networking.XmlMessageTypeException;
 import utool.networking.packet.PlayerMessage;
 import utool.networking.packet.PlayerMessage.MessageType;
@@ -38,15 +39,18 @@ public class IncomingCommandHandler {
 			switch (message.getMessageType()) {
 				case GameState:
 					if (tournament instanceof KingOfTheHillParticipantTournament){
+						Log.d("KOTH", "Game state received from host");
 						tournament.setPlayerExtras(message.getPlayerExtras());
 						tournament.setKing(message.getKing());
 						tournament.setPlayers(message.getPlayerList());
 						tournament.setRemainingGameTime(message.getGameTimeRemaining());
 						tournament.setRemainingRoundTime(message.getRoundTimeRemaining());
+						tournament.setKingWinsStreakCount(message.getKingWins());
 					}
 					break;
 				case RequestGameState:
 					if (tournament instanceof KingOfTheHillTournament){
+						Log.d("KOTH", "Game state requested from client");
 						tournament.getOutgoingCommandHandler().sendGameState();
 					}
 					break;

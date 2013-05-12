@@ -56,7 +56,7 @@ public class TournamentLogicTest extends AndroidTestCase {
 	 * Test challenger
 	 */
 	public void testChallenger(){
-		assertEquals(players.get(1), tournament.popTopPlayer());
+		assertEquals(players.get(1), tournament.popTopPlayer(true));
 	}
 	
 	/**

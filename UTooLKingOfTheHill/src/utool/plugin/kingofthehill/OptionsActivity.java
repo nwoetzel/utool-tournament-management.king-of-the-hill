@@ -3,10 +3,12 @@ package utool.plugin.kingofthehill;
 import utool.plugin.activity.AbstractPluginCommonReference;
 import utool.plugin.kingofthehill.tournament.KingOfTheHillTournament;
 import utool.plugin.kingofthehill.tournament.TournamentLogic;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +36,10 @@ public class OptionsActivity extends AbstractPluginCommonReference {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//remove title bar if under honeycomb
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		}
 		setContentView(R.layout.activity_options);
 		
 		tournament = TournamentLogic.getInstance(pluginHelper.getTournamentId());
@@ -86,15 +92,21 @@ public class OptionsActivity extends AbstractPluginCommonReference {
 	private void applySettings(){
 		EditText roundTimerEditText = (EditText)findViewById(R.id.roundTimerEditText);
 		EditText gameTimerEditText = (EditText)findViewById(R.id.gameTimerEditText);
+		int roundTimerSetting = 0;
+		int gameTimerSetting = 0;
+		try {
+			roundTimerSetting = Integer.parseInt(roundTimerEditText.getText().toString());
+		} catch (Exception e){/*dodge the crash*/}
 		
-		int roundTimerSetting = Integer.parseInt(roundTimerEditText.getText().toString());
-		int gameTimerSetting = Integer.parseInt(gameTimerEditText.getText().toString());
+		try{
+			gameTimerSetting = Integer.parseInt(gameTimerEditText.getText().toString());
+		} catch (Exception e){/*dodge the crash*/}
 		
 		if (tournament instanceof KingOfTheHillTournament){
-			if (roundTimerSetting != previousRoundTimerSetting){
+			if (roundTimerSetting != previousRoundTimerSetting || roundTimerSetting < 1){
 				((KingOfTheHillTournament)tournament).setRoundTimerSetting(roundTimerSetting);
 			}
-			if (gameTimerSetting != previousGameTimerSetting){
+			if (gameTimerSetting != previousGameTimerSetting || gameTimerSetting < 1){
 				((KingOfTheHillTournament)tournament).setGameTimerSetting(gameTimerSetting);
 			}
 			((KingOfTheHillTournament)tournament).sendGameState();
@@ -106,14 +118,14 @@ public class OptionsActivity extends AbstractPluginCommonReference {
 	 * Send out emails
 	 */
 	private void sendEmail(){
-		TournamentLogic.getInstance(pluginHelper.getTournamentId()).getAutomaticEmailHandler().sendOutNotifications();
+		TournamentLogic.getInstance(pluginHelper.getTournamentId()).getAutomaticMessageHandler().sendOutNotifications();
 	}
 	
 	/**
 	 * Show the email activity
 	 */
 	private void showEmailActivity(){
-		Intent i = pluginHelper.getNewIntent(getApplicationContext(), EmailActivity.class);
+		Intent i = pluginHelper.getNewIntent(this, EmailActivity.class);
 		startActivity(i);
 	}
 

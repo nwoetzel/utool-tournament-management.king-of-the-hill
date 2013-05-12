@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">King of the Hill</string>
-    <string name="menu_settings">Tournament Configuration</string>
+    <string name="menu_settings">Edit</string>
     <string name="title_activity_king_of_the_hill_main">King of the Hill</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_options">Options</string><string name="title_activity_standings">Standings</string>

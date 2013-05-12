@@ -6,22 +6,58 @@
     android:orientation="vertical"
     tools:context=".KingOfTheHillMainActivity" >
     
+    <LinearLayout
+        android:id="@+id/utoolTitleBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:paddingLeft="5dip" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="King of the Hill"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#ff0000"
+            android:textSize="32dip" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Universal Tournament Organization Tool"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+    
     <RelativeLayout 
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+    <TextView 
+        android:id="@+id/tournamentNameTextViewLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       	android:textAppearance="?android:attr/textAppearanceLarge"
+       	android:text="Name" />
     <TextView 
         android:id="@+id/gameTimerTextViewLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
        	android:textAppearance="?android:attr/textAppearanceMedium"
+       	android:layout_below="@+id/tournamentNameTextViewLabel"
        	android:text="Game Time Remaining: " />
     <TextView 
         android:id="@+id/gameTimerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/roundTimerTextViewLabel"
+        android:layout_alignTop="@+id/roundTimerTextViewLabel"
        	android:textAppearance="?android:attr/textAppearanceMedium"
-       	android:text="0" />
+       	android:text="∞" />
     <TextView 
         android:id="@+id/roundTimerTextViewLabel"
         android:layout_width="wrap_content"
@@ -35,8 +71,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/gameTimerTextView"
         android:layout_toRightOf="@+id/roundTimerTextViewLabel"
+        android:layout_alignTop="@+id/gameTimerTextViewLabel"
        	android:textAppearance="?android:attr/textAppearanceMedium"
-       	android:text="0" />
+       	android:text="∞" />
     </RelativeLayout>
 	<include
 		android:layout_width="fill_parent"

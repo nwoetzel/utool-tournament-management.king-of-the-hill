@@ -52,6 +52,11 @@ public class GameStateMessage implements IXmlMessage {
 	private static final String KING_TAG = "king";
 	
 	/**
+	 * XML current king wins tag
+	 */
+	private static final String KING_WINS_ATTRIB = "kingWins";
+	
+	/**
 	 * XML player tag
 	 */
 	private static final String PLAYER_TAG = "player";
@@ -91,6 +96,11 @@ public class GameStateMessage implements IXmlMessage {
 	 * The current king of the tournament
 	 */
 	private UUID king;
+	
+	/**
+	 * The current king's wins this round
+	 */
+	private int kingWins;
 	
 	/**
 	 * The message type
@@ -158,6 +168,22 @@ public class GameStateMessage implements IXmlMessage {
 	}
 	
 	/**
+	 * Get the king's wins this round
+	 * @return King's wins
+	 */
+	public int getKingWins(){
+		return kingWins;
+	}
+	
+	/**
+	 * Set the king's wins this round
+	 * @param wins King's wins
+	 */
+	public void setKingWins(int wins){
+		kingWins = wins;
+	}
+	
+	/**
 	 * Get the extra player data
 	 * @return HashMap of data
 	 */
@@ -187,7 +213,9 @@ public class GameStateMessage implements IXmlMessage {
 		}
 		
 		this.players = playersUUID;
-		this.king = king.getUUID();
+		if (king != null){
+			this.king = king.getUUID();
+		}
 		KingOfTheHillPlayerExtra extra = playersExtra.get(king);
 		if (extra != null){
 			this.playersExtra.put(this.king, extra);
@@ -222,6 +250,7 @@ public class GameStateMessage implements IXmlMessage {
 			if (king != null){
 				xmlSerializer.startTag("", KING_TAG);
 				xmlSerializer.attribute("", PLAYER_UUID_ATTRIB, king.toString());
+				xmlSerializer.attribute("", KING_WINS_ATTRIB, Integer.toString(kingWins));
 				KingOfTheHillPlayerExtra extra = playersExtra.get(king);
 				if (extra != null){
 					xmlSerializer.attribute("", PLAYER_WINS_ATTRIB, Integer.toString(playersExtra.get(king).getWins()));
@@ -289,6 +318,7 @@ public class GameStateMessage implements IXmlMessage {
 				String name = parser.getName();
 				if (parser.getEventType() == XmlPullParser.START_TAG){
 					if (name != null && name.equalsIgnoreCase(PLAYER_TAG)){
+						//read a player
 						for (int i = 0; i < parser.getAttributeCount(); i++){
 							String attrib = parser.getAttributeName(i);
 							if (attrib.equalsIgnoreCase(PLAYER_UUID_ATTRIB)){
@@ -302,6 +332,7 @@ public class GameStateMessage implements IXmlMessage {
 							}
 						}
 					} else if (name != null && name.equalsIgnoreCase(KING_TAG)){
+						//read the king
 						for (int i = 0; i < parser.getAttributeCount(); i++){
 							String attrib = parser.getAttributeName(i);
 							if (attrib.equalsIgnoreCase(PLAYER_UUID_ATTRIB)){
@@ -310,6 +341,8 @@ public class GameStateMessage implements IXmlMessage {
 								wins = Integer.valueOf(parser.getAttributeValue(i));
 							} else if (attrib.equalsIgnoreCase(PLAYER_LOSSES_ATTRIB)){
 								losses = Integer.valueOf(parser.getAttributeValue(i));
+							} else if (attrib.equalsIgnoreCase(KING_WINS_ATTRIB)){
+								kingWins = Integer.valueOf(parser.getAttributeValue(i));
 							}
 						}
 					}
