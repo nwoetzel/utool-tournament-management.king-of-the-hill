@@ -3,7 +3,6 @@ package utool.plugin.kingofthehill;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import utool.plugin.Player;
 import utool.plugin.activity.AbstractPluginMainReference;

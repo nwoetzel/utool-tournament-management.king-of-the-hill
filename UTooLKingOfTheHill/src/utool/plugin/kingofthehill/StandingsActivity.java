@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
